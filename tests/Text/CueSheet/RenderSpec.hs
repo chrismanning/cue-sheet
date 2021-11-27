@@ -54,6 +54,7 @@ testCueSheet = do
         cueTitle = Just title,
         cueSongwriter = Just songwriter,
         cueFirstTrackNumber = 1,
+        cueRem = [],
         cueFiles =
           NE.fromList
             [ CueFile

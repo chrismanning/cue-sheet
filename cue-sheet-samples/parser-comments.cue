@@ -3,6 +3,7 @@ REM Foo
 PERFORMER "Faithless"
 REM Bar
 REM Bar
+REM GENRE Electronica
 TITLE "Live in Berlin"
 REM Baz
 REM Baz

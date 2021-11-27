@@ -286,6 +286,8 @@ testSheet = do
   performer <- mkCueText "Faithless"
   title <- mkCueText "Live in Berlin"
   trackTitle <- mkCueText "Reverence"
+  genreKey <- mkCueText "GENRE"
+  genreValue <- mkCueText "Electronica"
   return
     CueSheet
       { cueCatalog = Nothing,
@@ -294,6 +296,7 @@ testSheet = do
         cueTitle = Just title,
         cueSongwriter = Nothing,
         cueFirstTrackNumber = 1,
+        cueRem = [(genreKey, genreValue)],
         cueFiles =
           NE.fromList
             [ CueFile
@@ -336,6 +339,10 @@ normalCueSheet = do
   track6Title <- mkCueText "Salva Mea"
   track7Title <- mkCueText "Dirty Old Man"
   track8Title <- mkCueText "God Is a DJ"
+  dateKey <- mkCueText "DATE"
+  dateValue <- mkCueText "1998"
+  genreKey <- mkCueText "GENRE"
+  genreValue <- mkCueText "Electronica"
   return
     CueSheet
       { cueCatalog = Just catalog,
@@ -344,6 +351,7 @@ normalCueSheet = do
         cueTitle = Just title,
         cueSongwriter = Nothing,
         cueFirstTrackNumber = 1,
+        cueRem = [(genreKey, genreValue), (dateKey, dateValue)],
         cueFiles =
           NE.fromList
             [ CueFile

@@ -26,6 +26,7 @@ where
 import Control.Monad.State.Strict
 import Data.ByteString (ByteString)
 import Data.Data (Data)
+import Data.Functor
 import Data.List.NonEmpty (NonEmpty (..))
 import qualified Data.List.NonEmpty as NE
 import Data.Maybe (isJust)
@@ -144,7 +145,8 @@ parseCueSheet = parse (contextCueSheet <$> execStateT pCueSheet initContext)
                 cueTitle = Nothing,
                 cueSongwriter = Nothing,
                 cueFirstTrackNumber = 0,
-                cueFiles = dummyFile :| []
+                cueFiles = dummyFile :| [],
+                cueRem = []
               },
           contextFiles = [],
           contextTracks = [],
@@ -256,7 +258,22 @@ pSongwriter = do
 pRem :: Parser ()
 pRem = do
   void (symbol "REM")
-  takeWhileP (Just "character") (/= 10) *> char 10 *> scn
+  let f x' =
+        let x = T.decodeUtf8 x'
+         in case T.findIndex (== ' ') x <&> \i -> T.strip <$> T.splitAt i x of
+              Nothing -> Right Nothing
+              Just (k, v) -> case (mkCueText k, mkCueText v) of
+                (Just k', Just v') -> Right $ Just (k', v')
+                _ -> Left (CueParserInvalidCueText x)
+  rem' <- withCheck f (lexeme spacedStringLit) <* eol <* scn
+  case rem' of
+    Nothing -> pure ()
+    Just metadata ->
+      modify $ \x ->
+        x
+          { contextCueSheet =
+              (contextCueSheet x) { cueRem = let old = cueRem (contextCueSheet x) in old <> [metadata] }
+          }
 
 pFile :: Parser ()
 pFile = do
@@ -562,6 +579,17 @@ stringLit =
     unquoted = takeWhileP Nothing g
     f x = x /= 10 && x /= 34
     g x = x /= 10 && x /= 9 && x /= 13 && x /= 32
+
+-- | String literal with support for quotation and spaces.
+spacedStringLit :: Parser ByteString
+spacedStringLit =
+  (quoted <?> "quoted string literal with spaces")
+    <|> (unquoted <?> "unquoted string literal with spaces")
+  where
+    quoted = char 34 *> takeWhileP Nothing f <* char 34
+    unquoted = takeWhileP Nothing g
+    f x = x /= 10 && x /= 34
+    g x = x /= 10 && x /= 13
 
 -- | Parse a 'Natural'.
 naturalLit :: Parser Natural

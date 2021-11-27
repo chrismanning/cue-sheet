@@ -61,7 +61,9 @@ data CueSheet = CueSheet
     -- | Number of the first track. Typically 1, but may be greater than 1.
     cueFirstTrackNumber :: !Natural,
     -- | Collection of files to be written.
-    cueFiles :: !(NonEmpty CueFile)
+    cueFiles :: !(NonEmpty CueFile),
+    -- | Additional metadata. Other remarks/comments are not retained.
+    cueRem :: ![(CueText, CueText)]
   }
   deriving (Show, Eq, Ord, Generic)
 
@@ -75,6 +77,15 @@ instance Arbitrary CueSheet where
       <*> arbitrary
       <*> (fromInteger . getPositive <$> arbitrary)
       <*> scaleDown (NE.fromList . getNonEmpty <$> arbitrary)
+      <*> listOf arbitraryRem
+    where
+      arbitraryRem :: Gen (CueText, CueText)
+      arbitraryRem = do
+        let isValidRem t = all isLetter t && not (null t)
+        let gen = CueText <$> (T.pack <$> arbitrary `suchThat` isValidRem)
+        k <- gen
+        v <- gen
+        pure (k, v)
 
 -- | A file to be written. Single file can be divided into one or more
 -- tracks (see 'CueTrack').

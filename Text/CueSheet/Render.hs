@@ -72,6 +72,12 @@ renderCueSheet csrf CueSheet {..} =
       tell "SONGWRITER "
       tellText (unCueText x)
       eol
+    forM_ cueRem $ \(k, v) -> do
+      tell "REM "
+      tell (BB.byteString (T.encodeUtf8 (unCueText k)))
+      tell " "
+      tell (BB.byteString (T.encodeUtf8 (unCueText v)))
+      eol
     forM_ cueFiles $ \CueFile {..} -> do
       tell "FILE "
       tellText (T.pack cueFileName)
