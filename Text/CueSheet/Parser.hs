@@ -260,13 +260,14 @@ pRem = do
   let f x' =
         let x = T.decodeUtf8 x'
          in case mkCueText x of
+              Nothing | T.null x -> Right Nothing
               Nothing -> Left (CueParserInvalidCueText x)
-              Just txt -> Right txt
+              Just txt -> Right $ Just txt
   let p = withCheck f (lexeme stringLit)
   rem' <- ((,) <$> (try $ p <* eol <* scn) <*> pure Nothing) <|>
-    ((,) <$> (p <* sc) <*> (Just <$> p <* eol <* scn))
+    ((,) <$> (p <* sc) <*> (p <* eol <* scn))
   case rem' of
-    (key, Just value) ->
+    (Just key, Just value) ->
       modify $ \x ->
         x
           { contextCueSheet =
