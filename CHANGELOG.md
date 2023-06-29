@@ -1,6 +1,6 @@
-## Unreleased
+## Cue sheet 2.0.2
 
-* Dropped support for GHC 8.2 and older.
+* Builds with `mtl-2.3`.
 
 ## Cue sheet 2.0.1
 

@@ -23,7 +23,8 @@ module Text.CueSheet.Parser
   )
 where
 
-import Control.Monad.State.Strict
+import Control.Monad (void)
+import Control.Monad.State.Strict (StateT, execStateT, gets, modify)
 import Data.ByteString (ByteString)
 import Data.Data (Data)
 import Data.List.NonEmpty (NonEmpty (..))
@@ -53,7 +54,8 @@ data Eec = Eec (Maybe Natural) CueParserFailure
 
 instance ShowErrorComponent Eec where
   showErrorComponent (Eec mtrack failure') =
-    showErrorComponent failure' ++ "\n"
+    showErrorComponent failure'
+      ++ "\n"
       ++ maybe "" (\n -> "in declaration of the track " ++ show n) mtrack
 
 -- | The enumeration of all failures that may happen during running of
